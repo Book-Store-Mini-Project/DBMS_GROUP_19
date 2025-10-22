@@ -1,0 +1,10 @@
+INSERT INTO Course (course_code, course_name)
+VALUES 
+('ICT1212', 'Database Management Systems'),
+('ICT1222', 'Database Management Systems Practicum'),
+('ICT1233', 'Server Side Web Development'),
+('ICT1242', 'Computer Architecture'),
+('ICT1253', 'Computer Networks'),
+('ENG1222', 'English II'),
+('TCS1212', 'Fundamentals 0f Management'),
+('TMS1233', 'Discrete Mathemetics');

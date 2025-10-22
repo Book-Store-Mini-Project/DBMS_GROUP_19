@@ -1,0 +1,14 @@
+CREATE TABLE attendance_session (
+    session_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_code VARCHAR(20) NOT NULL,
+    intake_batch INT,
+    session_date DATE,
+    session_type ENUM('practical','lecture'),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    
+);
+
+ALTER TABLE attendance_session
+ADD FOREIGN KEY (course_code) REFERENCES course(course_code); 
+
