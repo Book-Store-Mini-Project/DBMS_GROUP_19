@@ -1,0 +1,7 @@
+INSERT INTO technical_officer (user_id)
+VALUES
+(21),  
+(22),  
+(23),
+(24),
+(25);
