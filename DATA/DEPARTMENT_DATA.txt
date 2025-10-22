@@ -1,0 +1,5 @@
+INSERT INTO department (dept_id,dept_name, to_count, stu_count, lec_count, degree_offered)
+VALUES
+(1 ,'ICT', 0, 0, 0, 'BICT'),
+(2,'ET', 0, 0, 0, 'BET'),
+(3,'BST', 0, 0, 0, 'BBST');
