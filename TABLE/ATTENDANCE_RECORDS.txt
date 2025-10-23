@@ -1,0 +1,24 @@
+CREATE TABLE attendance_records (
+    record_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20),
+    session_id INT,
+    status ENUM('Present','Absent','Medical'),
+    medical_id INT DEFAULT -1,     
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE attendance_records
+ADD CONSTRAINT fk_reg_num
+FOREIGN KEY (reg_num) REFERENCES enrollment(reg_num)
+ON DELETE CASCADE;
+
+ALTER TABLE attendance_records
+ADD CONSTRAINT fk_session_id
+FOREIGN KEY (session_id) REFERENCES attendance_session(session_id)
+ON DELETE CASCADE;
+
+ALTER TABLE attendance_records
+ADD CONSTRAINT fk_medical_id
+FOREIGN KEY (medical_id) REFERENCES medical(medical_id)
+ON DELETE SET NULL;
