@@ -1,0 +1,25 @@
+DELIMITER //
+
+CREATE PROCEDURE get_attendance_by_regnum_course(
+    IN p_reg_num VARCHAR(20),
+    IN p_course_code VARCHAR(20)
+  
+)
+BEGIN
+    SELECT 
+ 	ar.reg_num,
+        s.course_code, 
+        e.level,
+        e.semester,
+        s.session_date,
+        s.session_type,
+        ar.status,
+    FROM attendance_records ar
+    JOIN attendance_session s ON ar.session_id = s.session_id
+    JOIN enrollment e ON ar.reg_num = e.reg_num
+    WHERE s.course_code = p_course_code 
+    AND ar.reg_num = p_reg_num
+    ORDER BY s.session_date, ar.reg_num;
+END //
+
+DELIMITER ;

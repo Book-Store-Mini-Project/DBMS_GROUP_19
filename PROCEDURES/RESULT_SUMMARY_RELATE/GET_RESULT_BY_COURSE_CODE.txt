@@ -1,0 +1,24 @@
+DELIMITER //
+
+CREATE PROCEDURE get_result_by_coursecode(
+    IN p_course_code VARCHAR(20)
+)
+BEGIN
+    SELECT
+        rs.reg_num,
+        c.course_code,
+        rs.f_quiz,
+        rs.project,
+        rs.assignment,
+        rs.mid_exam_marks,
+        rs.ca_marks,
+        rs.end_mark,
+        rs.final_mark,
+        rs.grade
+    FROM result_summary rs
+    JOIN course c ON rs.course_id = c.course_id
+    WHERE c.course_code = p_course_code
+    ORDER BY rs.reg_num;
+END //
+
+DELIMITER ;
