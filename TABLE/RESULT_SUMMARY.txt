@@ -1,0 +1,36 @@
+CREATE TABLE result_summary (
+    result_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20) NOT NULL,
+    course_id INT NOT NULL,
+    f_quiz DECIMAL(5,2) DEFAULT 0.00,
+    project DECIMAL(5,2) DEFAULT 0.00,
+    assignment DECIMAL(5,2) DEFAULT 0.00,   
+    mid_exam_marks DECIMAL(5,2) DEFAULT 0.00,
+ca_marks DECIMAL(5,2) GENERATED ALWAYS AS (f_quiz + project + assignment + mid_exam_marks) STORED,
+    ca_pass VARCHAR(6),
+    end_mark DECIMAL(5,2) DEFAULT 0.00,
+    end_pass VARCHAR(6),
+    final_mark DECIMAL(5,2) GENERATED ALWAYS AS (ca_marks + end_mark) STORED,
+    grade VARCHAR(2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (reg_num) REFERENCES enrollment(reg_num) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_result (reg_num, course_id)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
