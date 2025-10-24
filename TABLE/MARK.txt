@@ -1,0 +1,25 @@
+CREATE TABLE marks (
+    mark_id INT PRIMARY KEY AUTO_INCREMENT,
+    assessment_id INT NOT NULL,        
+    reg_num VARCHAR(20) NOT NULL,      
+    marked_obtained DECIMAL(5,2) DEFAULT 0.00,
+    status ENUM('Present', 'Absent') DEFAULT 'Present',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+ALTER TABLE marks
+ADD CONSTRAINT fk_assessment
+FOREIGN KEY (assessment_id) REFERENCES assessment_type(assessment_id)
+ON DELETE CASCADE;
+
+ALTER TABLE marks
+ADD CONSTRAINT fk_regnum
+FOREIGN KEY (reg_num) REFERENCES enrollment(reg_num)
+ON DELETE CASCADE;
+
+
+
+
+
+
