@@ -35,9 +35,7 @@ END $$
 
 DELIMITER ;
 
-UPDATE medical
-SET status = 'Approved'
-WHERE medical_id = 1;
+UPDATE medical SET status = 'Approved' WHERE medical_id = 1;
 
 
 

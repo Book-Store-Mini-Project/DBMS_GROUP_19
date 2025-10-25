@@ -1,0 +1,32 @@
+CREATE OR REPLACE VIEW student_grades_summary AS
+SELECT
+    r.reg_num,
+    c.level,
+    c.semester,
+
+    CASE
+        WHEN SUM(CASE WHEN r.grade = 'MC' THEN 1 ELSE 0 END) > 0 THEN 'MC'
+        ELSE ROUND(
+            SUM(
+                CASE
+                    WHEN r.final_mark >= 85 THEN 4.0
+                    WHEN r.final_mark >= 80 THEN 4.0
+                    WHEN r.final_mark >= 75 THEN 3.7
+                    WHEN r.final_mark >= 70 THEN 3.3
+                    WHEN r.final_mark >= 65 THEN 3.0
+                    WHEN r.final_mark >= 60 THEN 2.7
+                    WHEN r.final_mark >= 55 THEN 2.3
+                    WHEN r.final_mark >= 50 THEN 2.0
+                    WHEN r.final_mark >= 45 THEN 1.7
+                    ELSE 0
+                END * c.credits
+            ) / SUM(c.credits), 2
+        )
+    END AS sgpa,
+
+    s.cgpa
+
+FROM result_summary r
+JOIN course c ON r.course_id = c.course_id
+JOIN student s ON r.reg_num = s.reg_num
+GROUP BY r.reg_num, c.level, c.semester, s.cgpa;

@@ -2,7 +2,8 @@ CREATE TABLE assessment_type (
     assessment_id INT PRIMARY KEY AUTO_INCREMENT,
     assessment_category ENUM('Quiz 1','Quiz 2','Quiz 3','Assignment','Project','Mid Exam','End Exam') NOT NULL,
     weightage DECIMAL(5,2) NOT NULL,               
-    course_id INT,                                  
+    course_id INT,            
+    exam_date DATE,                      
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     

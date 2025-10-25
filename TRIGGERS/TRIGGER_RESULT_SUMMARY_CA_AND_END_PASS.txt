@@ -87,35 +87,38 @@ DELIMITER ;
 
 
 
-
 DELIMITER $$
 
 CREATE TRIGGER trg_update_grade_after_update
 BEFORE UPDATE ON result_summary
 FOR EACH ROW
 BEGIN
-    IF NEW.final_mark >= 85 THEN
-        SET NEW.grade = 'A+';
-    ELSEIF NEW.final_mark >= 80 THEN
-        SET NEW.grade = 'A';
-    ELSEIF NEW.final_mark >= 75 THEN
-        SET NEW.grade = 'A-';
-    ELSEIF NEW.final_mark >= 70 THEN
-        SET NEW.grade = 'B+';
-    ELSEIF NEW.final_mark >= 65 THEN
-        SET NEW.grade = 'B';
-    ELSEIF NEW.final_mark >= 60 THEN
-        SET NEW.grade = 'B-';
-    ELSEIF NEW.final_mark >= 55 THEN
-        SET NEW.grade = 'C+';
-    ELSEIF NEW.final_mark >= 50 THEN
-        SET NEW.grade = 'C';
-    ELSEIF NEW.final_mark >= 45 THEN
-        SET NEW.grade = 'C-';
-    ELSE
-        SET NEW.grade = 'F';
+    IF NEW.grade IS NULL OR NEW.grade <> 'MC' THEN
+        IF NEW.final_mark >= 85 THEN
+            SET NEW.grade = 'A+';
+        ELSEIF NEW.final_mark >= 80 THEN
+            SET NEW.grade = 'A';
+        ELSEIF NEW.final_mark >= 75 THEN
+            SET NEW.grade = 'A-';
+        ELSEIF NEW.final_mark >= 70 THEN
+            SET NEW.grade = 'B+';
+        ELSEIF NEW.final_mark >= 65 THEN
+            SET NEW.grade = 'B';
+        ELSEIF NEW.final_mark >= 60 THEN
+            SET NEW.grade = 'B-';
+        ELSEIF NEW.final_mark >= 55 THEN
+            SET NEW.grade = 'C+';
+        ELSEIF NEW.final_mark >= 50 THEN
+            SET NEW.grade = 'C';
+        ELSEIF NEW.final_mark >= 45 THEN
+            SET NEW.grade = 'C-';
+        ELSE
+            SET NEW.grade = 'F';
+        END IF;
     END IF;
 END$$
 
 DELIMITER ;
+
+
 
