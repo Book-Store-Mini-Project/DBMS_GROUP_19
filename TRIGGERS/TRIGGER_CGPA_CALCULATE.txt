@@ -1,0 +1,44 @@
+DROP TRIGGER IF EXISTS trg_update_cgpa;
+
+DELIMITER //
+
+CREATE TRIGGER trg_update_cgpa
+AFTER UPDATE ON result_summary
+FOR EACH ROW
+BEGIN
+    DECLARE total_points DECIMAL(10,2) DEFAULT 0.0;
+    DECLARE total_credits DECIMAL(10,2) DEFAULT 0.0;
+    DECLARE cgpa_val DECIMAL(4,2);
+
+    -- Calculate total grade points * credits and total credits
+    SELECT SUM(
+                CASE 
+                    WHEN final_mark >= 85 THEN 4.0
+                    WHEN final_mark >= 80 THEN 4.0
+                    WHEN final_mark >= 75 THEN 3.7
+                    WHEN final_mark >= 70 THEN 3.3
+                    WHEN final_mark >= 65 THEN 3.0
+                    WHEN final_mark >= 60 THEN 2.7
+                    WHEN final_mark >= 55 THEN 2.3
+                    WHEN final_mark >= 50 THEN 2.0
+                    WHEN final_mark >= 45 THEN 1.7
+                    ELSE 0
+                END * c.credits
+           ),
+           SUM(c.credits)
+    INTO total_points, total_credits
+    FROM result_summary r
+    JOIN course c ON r.course_id = c.course_id
+    WHERE r.reg_num = NEW.reg_num;
+
+    IF total_credits > 0 THEN
+        SET cgpa_val = ROUND(total_points / total_credits, 2);
+
+        UPDATE student
+        SET cgpa = cgpa_val,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE reg_num = NEW.reg_num;
+    END IF;
+END //
+
+DELIMITER ;

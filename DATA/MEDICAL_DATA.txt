@@ -1,0 +1,5 @@
+
+INSERT INTO medical (reg_num, source_name, source_type, contact_info, location, valid_from, valid_to, status)
+VALUES 
+('TG-2023-0003', 'Rural Medical Officer', 'Private', '071-1122334', 'Kurunegala', '2025-01-14', '2025-12-12', 'Pending'),
+('TG-2023-0004', 'Rural Medical Officer', 'Private', '071-1122334', 'Kurunegala', '2025-01-14', '2025-12-12', 'Pending');
