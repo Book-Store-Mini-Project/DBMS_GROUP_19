@@ -97,11 +97,12 @@ BEGIN
         rs.grade
     FROM result_summary rs
     JOIN course c ON rs.course_id = c.course_id
-    WHERE rs.reg_num  = p_reg_num
+    WHERE rs.reg_num = p_regnum
     ORDER BY rs.reg_num;
 END //
 
 DELIMITER ;
+
 
 DELIMITER //
 
@@ -224,3 +225,24 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
+DELIMITER //
+
+CREATE PROCEDURE get_student_gpa(
+    IN p_reg_num VARCHAR(20)
+)
+BEGIN
+    SELECT 
+        reg_num,
+        level,
+        semester,
+        sgpa,
+        cgpa
+    FROM student_grades_summary
+    WHERE reg_num = p_reg_num
+    ORDER BY level, semester;
+END //
+
+DELIMITER ;
+
