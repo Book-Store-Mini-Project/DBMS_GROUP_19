@@ -10,54 +10,6 @@ CREATE TABLE department (
 );
 
 
-DELIMITER $$
-
-CREATE TRIGGER after_user_insert
-AFTER INSERT ON user
-FOR EACH ROW
-BEGIN
-   
-    IF NEW.user_type = 'student' THEN
-        UPDATE department
-        SET stu_count = stu_count + 1
-        WHERE dept_id = NEW.dept_id;
-    ELSEIF NEW.user_type = 'lecturer' THEN
-        UPDATE department
-        SET lec_count = lec_count + 1
-        WHERE dept_id = NEW.dept_id;
-    ELSEIF NEW.user_type = 't_officer' THEN
-        UPDATE department
-        SET to_count = to_count + 1
-        WHERE dept_id = NEW.dept_id;
-    END IF;
-END$$
-
-DELIMITER ;
-
-
-
-DELIMITER $$
-
-CREATE TRIGGER after_user_delete
-AFTER DELETE ON user
-FOR EACH ROW
-BEGIN
-     IF OLD.user_type = 'student' THEN
-        UPDATE department
-        SET stu_count = stu_count - 1
-        WHERE dept_id = OLD.dept_id;
-    ELSEIF OLD.user_type = 'lecturer' THEN
-        UPDATE department
-        SET lec_count = lec_count - 1
-        WHERE dept_id = OLD.dept_id;
-    ELSEIF OLD.user_type = 't_officer' THEN
-        UPDATE department
-        SET to_count = to_count - 1
-        WHERE dept_id = OLD.dept_id;
-    END IF;
-END$$
-
-DELIMITER ;
 
 
 

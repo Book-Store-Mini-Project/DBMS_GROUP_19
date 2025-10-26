@@ -1,0 +1,29 @@
+DELIMITER //
+
+CREATE PROCEDURE get_eligibility_by_regnum_and_course(
+    IN p_reg_num VARCHAR(20),
+    IN p_course_code VARCHAR(20)
+)
+BEGIN
+
+    SELECT 
+        rs.reg_num,
+        c.course_code,
+        rs.ca_marks,
+        rs.ca_pass,
+        rs.end_mark,
+        rs.end_pass,
+        COALESCE(ea.attendance_percentage, nea.attendance_percentage, 0) AS attendance_percentage,
+        COALESCE(ea.eligibility, nea.eligibility, 'Not Eligible') AS eligibility
+    FROM result_summary rs
+    JOIN course c ON rs.course_id = c.course_id
+    LEFT JOIN eligible_students_attendance ea 
+           ON rs.reg_num = ea.reg_num AND c.course_code = ea.course_code
+    LEFT JOIN not_eligible_students_attendance nea
+           ON rs.reg_num = nea.reg_num AND c.course_code = nea.course_code
+    WHERE rs.reg_num = p_reg_num
+      AND c.course_code = p_course_code;
+
+END //
+
+DELIMITER ;

@@ -12,24 +12,7 @@ CREATE TABLE Course (
 );
 
 
-DELIMITER $$
-
-CREATE TRIGGER before_course_insert
-BEFORE INSERT ON Course
-FOR EACH ROW
-BEGIN
-    SET NEW.department = REGEXP_SUBSTR(NEW.course_code, '^[A-Z]+');
-
-    SET NEW.level   = CAST(SUBSTRING(RIGHT(NEW.course_code, 4), 1, 1) AS UNSIGNED);
-    SET NEW.semester = CAST(SUBSTRING(RIGHT(NEW.course_code, 4), 2, 1) AS UNSIGNED);
-    SET NEW.c_unit    = CAST(SUBSTRING(RIGHT(NEW.course_code, 4), 3, 1) AS UNSIGNED);
-    SET NEW.credits = CAST(SUBSTRING(RIGHT(NEW.course_code, 4), 4, 1) AS UNSIGNED);
-END $$
-
-DELIMITER ;
 
 
 
 
-DROP TABLE course;
-SELECT * FROM course;

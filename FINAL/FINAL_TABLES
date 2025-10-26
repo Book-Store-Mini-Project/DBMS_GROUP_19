@@ -1,0 +1,229 @@
+CREATE TABLE user (
+    user_id INT PRIMARY KEY,
+    firstname VARCHAR(20),
+    lastname VARCHAR(20),
+    email VARCHAR(50) NOT NULL UNIQUE,
+    dob DATE,
+    user_type ENUM("student","lecturer","t_officer"),
+    dept_id INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE student (
+    student_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20) UNIQUE,
+    user_id INT,
+    intake_batch INT,
+    current_level INT,
+    cgpa DECIMAL(4,2),
+    status ENUM('active','graduated','suspended') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE lecturer (
+    lecturer_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20),
+    user_id INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE technical_officer (
+    to_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    to_count INT DEFAULT 0,
+    stu_count INT DEFAULT 0,
+    lec_count INT DEFAULT 0,
+    degree_offered VARCHAR(20),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Course (
+    course_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_code VARCHAR(20) NOT NULL UNIQUE,
+    course_name VARCHAR(100) NOT NULL,
+    department VARCHAR(15),
+    level INT,
+    semester INT,
+    c_unit INT,
+    credits INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE enrollment (
+    enrollment_id INT PRIMARY KEY,
+    reg_num VARCHAR(20) NOT NULL UNIQUE, 
+    level INT,
+    semester INT,
+    enrollment_date DATE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE assessment_type (
+    assessment_id INT PRIMARY KEY AUTO_INCREMENT,
+    assessment_category ENUM('Quiz 1','Quiz 2','Quiz 3','Assignment','Project','Mid Exam','End Exam') NOT NULL,
+    weightage DECIMAL(5,2) NOT NULL,               
+    course_id INT,            
+    exam_date DATE,                      
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    
+);
+
+CREATE TABLE attendance_records (
+    record_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20),
+    session_id INT,
+    status ENUM('Present','Absent','Medical'),
+    medical_id INT DEFAULT NULL,     
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE attendance_session (
+    session_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_code VARCHAR(20) NOT NULL,
+    intake_batch INT,
+    session_date DATE,
+    session_type ENUM('practical','lecture'),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    
+);
+
+
+CREATE TABLE enrollment_course (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    enrollment_id INT,
+    course_id INT,
+    
+    FOREIGN KEY (enrollment_id) REFERENCES enrollment(enrollment_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+    
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE marks (
+    mark_id INT PRIMARY KEY AUTO_INCREMENT,
+    assessment_id INT NOT NULL,        
+    reg_num VARCHAR(20) NOT NULL,      
+    marked_obtained DECIMAL(5,2) DEFAULT 0.00,
+    status ENUM('Present', 'Absent') DEFAULT 'Present',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE medical (
+    medical_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20),               
+    source_name VARCHAR(100),
+    source_type VARCHAR(50),
+    contact_info VARCHAR(100),
+    location VARCHAR(100),
+    valid_from DATE,
+    valid_to DATE,
+    status ENUM('Pending','Approved','Rejected') DEFAULT 'Pending',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    
+);
+
+
+CREATE TABLE result_summary (
+    result_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20) NOT NULL,
+    course_id INT NOT NULL,
+    f_quiz DECIMAL(5,2) DEFAULT 0.00,
+    project DECIMAL(5,2) DEFAULT 0.00,
+    assignment DECIMAL(5,2) DEFAULT 0.00,   
+    mid_exam_marks DECIMAL(5,2) DEFAULT 0.00,
+ca_marks DECIMAL(5,2) GENERATED ALWAYS AS (f_quiz + project + assignment + mid_exam_marks) STORED,
+    ca_pass VARCHAR(6),
+    end_mark DECIMAL(5,2) DEFAULT 0.00,
+    end_pass VARCHAR(6),
+    final_mark DECIMAL(5,2) GENERATED ALWAYS AS (ca_marks + end_mark) STORED,
+    grade VARCHAR(2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (reg_num) REFERENCES enrollment(reg_num) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_result (reg_num, course_id)
+);
+
+
+
+ALTER TABLE assessment_type
+ADD FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE;
+
+
+ALTER TABLE attendance_records
+ADD CONSTRAINT fk_reg_num
+FOREIGN KEY (reg_num) REFERENCES enrollment(reg_num)
+ON DELETE CASCADE;
+
+ALTER TABLE attendance_records
+ADD CONSTRAINT fk_session_id
+FOREIGN KEY (session_id) REFERENCES attendance_session(session_id)
+ON DELETE CASCADE;
+
+ALTER TABLE attendance_records
+ADD CONSTRAINT fk_medical_id
+FOREIGN KEY (medical_id) REFERENCES medical(medical_id)
+ON DELETE SET NULL;
+
+ALTER TABLE attendance_session
+ADD FOREIGN KEY (course_code) REFERENCES course(course_code); 
+
+
+ALTER TABLE enrollment
+ADD FOREIGN KEY (reg_num) REFERENCES student(reg_num);
+
+ALTER TABLE lecturer
+ADD CONSTRAINT fk_lecturer_user
+FOREIGN KEY (user_id) REFERENCES user(user_id)
+ON DELETE CASCADE;
+
+
+ALTER TABLE marks
+ADD CONSTRAINT fk_assessment
+FOREIGN KEY (assessment_id) REFERENCES assessment_type(assessment_id)
+ON DELETE CASCADE;
+
+ALTER TABLE marks
+ADD CONSTRAINT fk_regnum
+FOREIGN KEY (reg_num) REFERENCES enrollment(reg_num)
+ON DELETE CASCADE;
+
+ALTER TABLE medical
+ADD FOREIGN KEY (reg_num) REFERENCES enrollment(reg_num) ON DELETE CASCADE;
+
+
+ALTER TABLE student
+ADD CONSTRAINT fk_student_user
+FOREIGN KEY (user_id) REFERENCES user(user_id)
+ON DELETE CASCADE;
+
+
+ALTER TABLE technical_officer
+ADD CONSTRAINT fk_technical_officer_user
+FOREIGN KEY (user_id) REFERENCES user(user_id)
+ON DELETE CASCADE;

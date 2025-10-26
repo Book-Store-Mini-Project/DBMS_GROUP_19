@@ -13,27 +13,7 @@ CREATE TABLE medical (
     
 );
 
-ALTER TABLE medical
-ADD FOREIGN KEY (reg_num) REFERENCES enrollment(reg_num) ON DELETE CASCADE;
 
-DELIMITER $$
-
-CREATE TRIGGER after_medical_approved
-AFTER UPDATE ON medical
-FOR EACH ROW
-BEGIN
-    IF NEW.status = 'Approved' AND OLD.status != 'Approved' THEN
-        UPDATE attendance_records ar
-        JOIN attendance_session s
-          ON ar.session_id = s.session_id
-             AND s.session_date BETWEEN NEW.valid_from AND NEW.valid_to
-        SET ar.status = 'Medical',
-            ar.medical_id = NEW.medical_id
-        WHERE ar.reg_num = NEW.reg_num
-          AND ar.status = 'Absent';     END IF;
-END $$
-
-DELIMITER ;
 
 UPDATE medical SET status = 'Approved' WHERE medical_id = 1;
 

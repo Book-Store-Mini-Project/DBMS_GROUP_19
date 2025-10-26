@@ -1,0 +1,103 @@
+
+CREATE VIEW eligible_students_attendance AS
+SELECT
+    ar.reg_num,
+    s.course_code,
+    COUNT(ar.record_id) AS total_sessions,
+    SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) AS present_count,
+    SUM(CASE WHEN ar.status = 'Absent' THEN 1 ELSE 0 END) AS absent_count,
+    SUM(CASE WHEN ar.status = 'Medical' THEN 1 ELSE 0 END) AS medical_count,
+    ROUND(
+        (SUM(CASE WHEN ar.status IN ('Present','Medical') THEN 1 ELSE 0 END) / COUNT(ar.record_id)) * 100,
+        2
+    ) AS attendance_percentage,
+    'Eligible' AS eligibility
+FROM attendance_records ar
+JOIN attendance_session s ON ar.session_id = s.session_id
+GROUP BY ar.reg_num, s.course_code
+HAVING attendance_percentage >= 80
+ORDER BY ar.reg_num, s.course_code;
+
+
+
+CREATE VIEW not_eligible_students_attendance AS
+SELECT
+    ar.reg_num,
+    s.course_code,
+    COUNT(ar.record_id) AS total_sessions,
+    SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) AS present_count,
+    SUM(CASE WHEN ar.status = 'Absent' THEN 1 ELSE 0 END) AS absent_count,
+    SUM(CASE WHEN ar.status = 'Medical' THEN 1 ELSE 0 END) AS medical_count,
+    ROUND(
+        (SUM(CASE WHEN ar.status IN ('Present','Medical') THEN 1 ELSE 0 END) / COUNT(ar.record_id)) * 100,
+        2
+    ) AS attendance_percentage,
+    'Not Eligible' AS eligibility
+FROM attendance_records ar
+JOIN attendance_session s ON ar.session_id = s.session_id
+GROUP BY ar.reg_num, s.course_code
+HAVING attendance_percentage < 80
+ORDER BY ar.reg_num, s.course_code;
+
+
+
+CREATE VIEW student_course_attendance_summary AS
+SELECT
+    ar.reg_num,
+    s.course_code,
+    COUNT(ar.record_id) AS total_sessions,
+    SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) AS present_count,
+    SUM(CASE WHEN ar.status = 'Absent' THEN 1 ELSE 0 END) AS absent_count,
+    SUM(CASE WHEN ar.status = 'Medical' THEN 1 ELSE 0 END) AS medical_count,
+    ROUND(
+        (SUM(CASE WHEN ar.status IN ('Present','Medical') THEN 1 ELSE 0 END) / COUNT(ar.record_id)) * 100,
+        2
+    ) AS attendance_percentage,
+    CASE
+        WHEN ROUND(
+            (SUM(CASE WHEN ar.status IN ('Present','Medical') THEN 1 ELSE 0 END) / COUNT(ar.record_id)) * 100,
+            2
+        ) >= 80 THEN 'Eligible'
+        ELSE 'Not Eligible'
+    END AS eligibility
+FROM attendance_records ar
+JOIN attendance_session s ON ar.session_id = s.session_id
+GROUP BY ar.reg_num, s.course_code
+ORDER BY ar.reg_num, s.course_code;
+
+
+CREATE OR REPLACE VIEW student_grades_summary AS
+SELECT
+    r.reg_num,
+    c.level,
+    c.semester,
+
+    CASE
+        WHEN SUM(CASE WHEN r.grade = 'MC' THEN 1 ELSE 0 END) > 0 THEN 'MC'
+        ELSE ROUND(
+            SUM(
+                CASE
+                    WHEN r.final_mark >= 85 THEN 4.0
+                    WHEN r.final_mark >= 80 THEN 4.0
+                    WHEN r.final_mark >= 75 THEN 3.7
+                    WHEN r.final_mark >= 70 THEN 3.3
+                    WHEN r.final_mark >= 65 THEN 3.0
+                    WHEN r.final_mark >= 60 THEN 2.7
+                    WHEN r.final_mark >= 55 THEN 2.3
+                    WHEN r.final_mark >= 50 THEN 2.0
+                    WHEN r.final_mark >= 45 THEN 1.7
+                    ELSE 0
+                END * c.credits
+            ) / SUM(c.credits), 2
+        )
+    END AS sgpa,
+
+    s.cgpa
+
+FROM result_summary r
+JOIN course c ON r.course_id = c.course_id
+JOIN student s ON r.reg_num = s.reg_num
+GROUP BY r.reg_num, c.level, c.semester, s.cgpa;
+
+
+
