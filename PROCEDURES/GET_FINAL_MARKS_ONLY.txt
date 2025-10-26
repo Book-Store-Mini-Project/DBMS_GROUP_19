@@ -11,7 +11,7 @@ BEGIN
         rs.grade
     FROM result_summary rs
     JOIN course c ON rs.course_id = c.course_id
-    WHERE rs.reg_num  = p_reg_num
+    WHERE rs.reg_num = p_regnum
     ORDER BY rs.reg_num;
 END //
 

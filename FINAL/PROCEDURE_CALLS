@@ -35,3 +35,7 @@ call get_eligibility_by_course('ICT1253');
 
 call get_eligibility_by_regnum_and_course("TG-2023-0001","ICT1212");
 call get_eligibility_by_regnum_and_course("TG-2023-0003","ICT1253");
+
+
+call get_student_gpa("TG-2023-0001");
+call get_student_gpa("TG-2023-0003");

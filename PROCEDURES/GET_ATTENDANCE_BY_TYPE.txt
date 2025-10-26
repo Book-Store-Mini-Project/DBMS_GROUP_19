@@ -31,11 +31,3 @@ END //
 DELIMITER ;
 
 
-
-example call ..............
-
-CALL get_attendance_by_type('ICT1253', 'combined');
-
-CALL get_attendance_by_type('ICT1253', 'theory');
-
-CALL get_attendance_by_type('ICT1253', 'practical');
