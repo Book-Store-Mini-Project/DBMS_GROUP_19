@@ -13,7 +13,7 @@ BEGIN
         e.semester,
         s.session_date,
         s.session_type,
-        ar.status,
+        ar.status
     FROM attendance_records ar
     JOIN attendance_session s ON ar.session_id = s.session_id
     JOIN enrollment e ON ar.reg_num = e.reg_num

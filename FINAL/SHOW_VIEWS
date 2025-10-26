@@ -1,0 +1,8 @@
+SELECT * FROM eligible_students_attendance;
+
+SELECT * FROM not_eligible_students_attendance;
+
+
+SELECT * FROM student_course_attendance_summary;
+
+SELECT * FROM  student_grades_summary;

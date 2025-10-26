@@ -1,0 +1,37 @@
+call get_attendance_by_regnum_course("TG-2023-0001","ICT1212");
+call get_attendance_by_regnum_course("TG-2023-0004","ICT1253");
+
+call get_attendance_by_course("ICT1212");
+call get_attendance_by_course("ICT1253");
+
+
+call get_attendance_by_type("ICT1212","theory");
+call get_attendance_by_type("ICT1253","combined");
+
+
+call get_final_marks_by_regnum("TG-2023-0001");
+call get_final_marks_by_regnum("TG-2023-0010");
+
+
+call get_student_course_result("TG-2023-0001","ICT1212");
+call get_student_course_result("TG-2023-0005","ICT1253");
+
+
+call get_result_by_coursecode("ICT1212");
+call get_result_by_coursecode("ICT1253");
+
+
+call get_result_by_regnum("TG-2023-0001");
+call get_result_by_regnum("TG-2023-0003");
+
+
+call get_eligibilities_by_regnum("TG-2023-0001");
+call get_eligibilities_by_regnum("TG-2023-0003");
+
+
+call get_eligibility_by_course('ICT1212');
+call get_eligibility_by_course('ICT1253');
+
+
+call get_eligibility_by_regnum_and_course("TG-2023-0001","ICT1212");
+call get_eligibility_by_regnum_and_course("TG-2023-0003","ICT1253");

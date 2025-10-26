@@ -1,0 +1,226 @@
+DELIMITER //
+
+CREATE PROCEDURE get_attendance_by_regnum_course(
+    IN p_reg_num VARCHAR(20),
+    IN p_course_code VARCHAR(20)
+  
+)
+BEGIN
+    SELECT 
+ 	ar.reg_num,
+        s.course_code, 
+        e.level,
+        e.semester,
+        s.session_date,
+        s.session_type,
+        ar.status,
+    FROM attendance_records ar
+    JOIN attendance_session s ON ar.session_id = s.session_id
+    JOIN enrollment e ON ar.reg_num = e.reg_num
+    WHERE s.course_code = p_course_code 
+    AND ar.reg_num = p_reg_num
+    ORDER BY s.session_date, ar.reg_num;
+END //
+
+DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE get_attendance_by_course(
+    IN p_course_code VARCHAR(20)
+)
+BEGIN
+    SELECT 
+ 	ar.reg_num,
+        s.course_code, 
+        e.level,
+        e.semester,
+        s.session_date,
+        s.session_type,
+        ar.status
+    FROM attendance_records ar
+    JOIN attendance_session s ON ar.session_id = s.session_id
+    JOIN enrollment e ON ar.reg_num = e.reg_num
+    WHERE s.course_code = p_course_code
+    ORDER BY s.session_date, ar.reg_num;
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE PROCEDURE get_attendance_by_type(
+    IN p_course_code VARCHAR(20),
+    IN p_type ENUM('theory','practical','combined')
+)
+BEGIN
+    SELECT
+        ar.reg_num,
+        s.course_code,
+        COUNT(ar.record_id) AS total_sessions,
+        SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) AS present_count,
+        SUM(CASE WHEN ar.status = 'Absent' THEN 1 ELSE 0 END) AS absent_count,
+        SUM(CASE WHEN ar.status = 'Medical' THEN 1 ELSE 0 END) AS medical_count,
+        ROUND(
+            (SUM(CASE WHEN ar.status IN ('Present','Medical') THEN 1 ELSE 0 END) / COUNT(ar.record_id)) * 100,
+            2
+        ) AS attendance_percentage
+    FROM attendance_records ar
+    JOIN attendance_session s ON ar.session_id = s.session_id
+    WHERE s.course_code = p_course_code
+      AND (
+          (p_type = 'theory' AND s.session_type = 'lecture') OR
+          (p_type = 'practical' AND s.session_type = 'practical') OR
+          (p_type = 'combined')
+      )
+    GROUP BY ar.reg_num, s.course_code
+    ORDER BY ar.reg_num;
+END //
+
+DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE get_final_marks_by_regnum(
+    IN p_regnum VARCHAR(20)
+)
+BEGIN
+    SELECT
+        rs.reg_num,
+        c.course_code,
+        rs.final_mark,
+        rs.grade
+    FROM result_summary rs
+    JOIN course c ON rs.course_id = c.course_id
+    WHERE rs.reg_num  = p_reg_num
+    ORDER BY rs.reg_num;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE get_student_course_result(
+    IN p_reg_num VARCHAR(20),
+    IN p_course_code VARCHAR(20)
+)
+BEGIN
+    SELECT 
+	m.reg_num,
+	c.course_code,
+        a.assessment_category,
+        m.marked_obtained,
+ 	a.weightage
+    FROM marks m
+    JOIN assessment_type a ON m.assessment_id = a.assessment_id
+    JOIN course c ON a.course_id = c.course_id
+    WHERE m.reg_num = p_reg_num
+      AND c.course_code = p_course_code
+    ORDER BY a.assessment_id;
+END //
+
+DELIMITER ;
+
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE get_result_by_coursecode(
+    IN p_course_code VARCHAR(20)
+)
+BEGIN
+    SELECT
+        rs.reg_num,
+        c.course_code,
+        rs.f_quiz,
+        rs.project,
+        rs.assignment,
+        rs.mid_exam_marks,
+        rs.ca_marks,
+        rs.end_mark,
+        rs.final_mark,
+        rs.grade
+    FROM result_summary rs
+    JOIN course c ON rs.course_id = c.course_id
+    WHERE c.course_code = p_course_code
+    ORDER BY rs.reg_num;
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE PROCEDURE get_result_by_regnum(IN p_reg_num VARCHAR(20))
+BEGIN
+    SELECT *
+    FROM result_summary
+    WHERE reg_num = p_reg_num;
+END //
+
+DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE get_eligibilities_by_regnum(IN p_reg_num VARCHAR(20))
+BEGIN
+
+    SELECT 
+        rs.reg_num,
+        c.course_code,
+        rs.ca_marks,
+        rs.ca_pass,
+        rs.end_mark,
+        rs.end_pass,
+        COALESCE(ea.attendance_percentage, nea.attendance_percentage, 0) AS attendance_percentage,
+        COALESCE(ea.eligibility, nea.eligibility, 'Not Eligible') AS eligibility
+    FROM result_summary rs
+    JOIN course c ON rs.course_id = c.course_id
+    LEFT JOIN eligible_students_attendance ea 
+           ON rs.reg_num = ea.reg_num AND c.course_code = ea.course_code
+    LEFT JOIN not_eligible_students_attendance nea
+           ON rs.reg_num = nea.reg_num AND c.course_code = nea.course_code
+    WHERE rs.reg_num = p_reg_num
+    ORDER BY c.course_code;
+
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE PROCEDURE get_eligibility_by_course(
+    IN p_course_code VARCHAR(20)
+)
+BEGIN
+
+    SELECT 
+        rs.reg_num,
+        c.course_code,
+        rs.ca_marks,
+        rs.ca_pass,
+        rs.end_mark,
+        rs.end_pass,
+        COALESCE(ea.attendance_percentage, nea.attendance_percentage, 0) AS attendance_percentage,
+        COALESCE(ea.eligibility, nea.eligibility, 'Not Eligible') AS eligibility
+    FROM result_summary rs
+    JOIN course c ON rs.course_id = c.course_id
+    LEFT JOIN eligible_students_attendance ea 
+           ON rs.reg_num = ea.reg_num AND c.course_code = ea.course_code
+    LEFT JOIN not_eligible_students_attendance nea
+           ON rs.reg_num = nea.reg_num AND c.course_code = nea.course_code
+    WHERE c.course_code = p_course_code
+    ORDER BY rs.reg_num;
+
+END //
+
+DELIMITER ;
