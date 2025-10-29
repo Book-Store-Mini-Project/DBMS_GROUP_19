@@ -1,0 +1,13 @@
+CREATE TABLE enrollment_course (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    enrollment_id INT,
+    course_id INT,
+    
+    FOREIGN KEY (enrollment_id) REFERENCES enrollment(enrollment_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
+    
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+

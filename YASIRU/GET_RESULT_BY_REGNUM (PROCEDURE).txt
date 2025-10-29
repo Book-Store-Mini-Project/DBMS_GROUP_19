@@ -1,0 +1,10 @@
+DELIMITER //
+
+CREATE PROCEDURE get_result_by_regnum(IN p_reg_num VARCHAR(20))
+BEGIN
+    SELECT *
+    FROM result_summary
+    WHERE reg_num = p_reg_num;
+END //
+
+DELIMITER ;

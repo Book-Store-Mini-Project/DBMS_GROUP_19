@@ -1,0 +1,18 @@
+DELIMITER //
+
+CREATE PROCEDURE get_final_marks_by_regnum(
+    IN p_regnum VARCHAR(20)
+)
+BEGIN
+    SELECT
+        rs.reg_num,
+        c.course_code,
+        rs.final_mark,
+        rs.grade
+    FROM result_summary rs
+    JOIN course c ON rs.course_id = c.course_id
+    WHERE rs.reg_num = p_regnum
+    ORDER BY rs.reg_num;
+END //
+
+DELIMITER ;

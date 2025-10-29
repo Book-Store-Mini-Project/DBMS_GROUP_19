@@ -1,0 +1,18 @@
+CREATE TABLE department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    to_count INT DEFAULT 0,
+    stu_count INT DEFAULT 0,
+    lec_count INT DEFAULT 0,
+    degree_offered VARCHAR(20),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+
+
+
+
