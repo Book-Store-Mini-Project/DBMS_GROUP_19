@@ -1,0 +1,13 @@
+CREATE TABLE enrollment (
+    enrollment_id INT PRIMARY KEY,
+    reg_num VARCHAR(20) NOT NULL UNIQUE, 
+    level INT,
+    semester INT,
+    enrollment_date DATE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE enrollment
+ADD FOREIGN KEY (reg_num) REFERENCES student(reg_num);

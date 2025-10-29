@@ -1,0 +1,9 @@
+CREATE OR REPLACE VIEW student_end_marks AS
+SELECT 
+    rs.reg_num,
+    c.course_code,
+    rs.end_mark,
+    rs.end_pass
+FROM result_summary rs
+JOIN course c ON rs.course_id = c.course_id
+ORDER BY rs.reg_num, c.course_code;
