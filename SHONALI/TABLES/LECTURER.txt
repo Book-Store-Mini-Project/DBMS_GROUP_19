@@ -1,0 +1,14 @@
+CREATE TABLE lecturer (
+    lecturer_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20),
+    user_id INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE lecturer
+ADD CONSTRAINT fk_lecturer_user
+FOREIGN KEY (user_id) REFERENCES user(user_id)
+ON DELETE CASCADE;
+
+

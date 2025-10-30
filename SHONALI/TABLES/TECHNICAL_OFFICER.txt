@@ -1,0 +1,11 @@
+CREATE TABLE technical_officer (
+    to_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE technical_officer
+ADD CONSTRAINT fk_technical_officer_user
+FOREIGN KEY (user_id) REFERENCES user(user_id)
+ON DELETE CASCADE;
