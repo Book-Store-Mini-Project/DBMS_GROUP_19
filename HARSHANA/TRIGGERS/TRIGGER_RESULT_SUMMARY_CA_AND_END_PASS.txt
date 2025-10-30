@@ -1,0 +1,124 @@
+DELIMITER //
+
+CREATE TRIGGER trg_result_pass
+BEFORE UPDATE ON result_summary
+FOR EACH ROW
+BEGIN
+
+    IF NEW.ca_marks < 16 THEN
+        SET NEW.ca_pass = 'Fail';
+    ELSE
+        SET NEW.ca_pass = 'Pass';
+    END IF;
+
+    IF NEW.end_mark < 21 THEN
+        SET NEW.end_pass = 'Repeat';
+    ELSE
+        SET NEW.end_pass = 'Pass';
+    END IF;
+END //
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_update_result_summary
+AFTER INSERT ON marks
+FOR EACH ROW
+BEGIN
+    DECLARE total_quiz DECIMAL(5,2) DEFAULT 0.00;
+    DECLARE total_project DECIMAL(5,2) DEFAULT 0.00;
+    DECLARE total_assignment DECIMAL(5,2) DEFAULT 0.00;
+    DECLARE mid_marks DECIMAL(5,2) DEFAULT 0.00;
+    DECLARE end_marks DECIMAL(5,2) DEFAULT 0.00;
+    DECLARE course INT;
+
+    -- Get course_id from the assessment
+
+    SELECT course_id INTO course FROM assessment_type WHERE assessment_id = NEW.assessment_id;
+
+    -- Calculate quiz total using best 2 quizzes only
+    SELECT SUM(marked_obtained * weightage) INTO total_quiz
+    FROM (
+        SELECT m.marked_obtained, at.weightage
+        FROM marks m
+        JOIN assessment_type at ON m.assessment_id = at.assessment_id
+        WHERE m.reg_num = NEW.reg_num
+          AND at.course_id = course
+          AND at.assessment_category LIKE 'Quiz%'
+        ORDER BY marked_obtained DESC
+        LIMIT 2
+    ) AS top2_quizzes;
+
+    -- Calculate project, assignment, mid exam, end exam
+    SELECT
+        SUM(CASE WHEN at.assessment_category = 'Project' THEN m.marked_obtained * at.weightage ELSE 0 END),
+        SUM(CASE WHEN at.assessment_category = 'Assignment' THEN m.marked_obtained * at.weightage ELSE 0 END),
+        SUM(CASE WHEN at.assessment_category = 'Mid Exam' THEN m.marked_obtained * at.weightage ELSE 0 END),
+        SUM(CASE WHEN at.assessment_category = 'End Exam' THEN m.marked_obtained * at.weightage ELSE 0 END)
+    INTO total_project, total_assignment, mid_marks, end_marks
+    FROM marks m
+    JOIN assessment_type at ON m.assessment_id = at.assessment_id
+    WHERE m.reg_num = NEW.reg_num
+      AND at.course_id = course;
+
+    -- Insert or update result_summary
+    IF EXISTS (SELECT 1 FROM result_summary WHERE reg_num = NEW.reg_num AND course_id = course) THEN
+        UPDATE result_summary
+        SET f_quiz = total_quiz,
+            project = total_project,
+            assignment = total_assignment,
+            mid_exam_marks = mid_marks,
+            end_mark = end_marks,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE reg_num = NEW.reg_num AND course_id = course;
+    ELSE
+        INSERT INTO result_summary(reg_num, course_id, f_quiz, project, assignment, mid_exam_marks, end_mark)
+        VALUES(NEW.reg_num, course, total_quiz, total_project, total_assignment, mid_marks, end_marks);
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_update_grade_after_update
+BEFORE UPDATE ON result_summary
+FOR EACH ROW
+BEGIN
+    IF NEW.grade IS NULL OR NEW.grade <> 'MC' THEN
+        IF NEW.final_mark >= 85 THEN
+            SET NEW.grade = 'A+';
+        ELSEIF NEW.final_mark >= 80 THEN
+            SET NEW.grade = 'A';
+        ELSEIF NEW.final_mark >= 75 THEN
+            SET NEW.grade = 'A-';
+        ELSEIF NEW.final_mark >= 70 THEN
+            SET NEW.grade = 'B+';
+        ELSEIF NEW.final_mark >= 65 THEN
+            SET NEW.grade = 'B';
+        ELSEIF NEW.final_mark >= 60 THEN
+            SET NEW.grade = 'B-';
+        ELSEIF NEW.final_mark >= 55 THEN
+            SET NEW.grade = 'C+';
+        ELSEIF NEW.final_mark >= 50 THEN
+            SET NEW.grade = 'C';
+        ELSEIF NEW.final_mark >= 45 THEN
+            SET NEW.grade = 'C-';
+        ELSE
+            SET NEW.grade = 'F';
+        END IF;
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+
