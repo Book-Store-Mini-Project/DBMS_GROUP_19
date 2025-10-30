@@ -1,0 +1,30 @@
+DROP TRIGGER IF EXISTS trg_medical_approved;
+
+DELIMITER //
+
+CREATE TRIGGER trg_medical_approved
+AFTER UPDATE ON medical
+FOR EACH ROW
+BEGIN
+    IF NEW.status = 'Approved' THEN
+        UPDATE result_summary r
+        JOIN assessment_type a
+          ON a.course_id = r.course_id
+        JOIN marks m
+          ON m.assessment_id = a.assessment_id
+          AND m.reg_num = r.reg_num
+        SET r.grade = 'MC'
+        WHERE r.reg_num = NEW.reg_num
+          AND m.status = 'Absent'
+          AND a.assessment_category IN ('Mid Exam', 'End Exam')
+          AND a.exam_date BETWEEN NEW.valid_from AND NEW.valid_to;
+    END IF;
+END //
+
+DELIMITER ;
+
+
+
+
+
+
