@@ -1,0 +1,27 @@
+DELIMITER //
+
+CREATE PROCEDURE get_student_course_result(
+    IN p_reg_num VARCHAR(20),
+    IN p_course_code VARCHAR(20)
+)
+BEGIN
+    SELECT 
+	m.reg_num,
+	c.course_code,
+        a.assessment_category,
+        m.marked_obtained,
+ 	a.weightage
+    FROM marks m
+    JOIN assessment_type a ON m.assessment_id = a.assessment_id
+    JOIN course c ON a.course_id = c.course_id
+    WHERE m.reg_num = p_reg_num
+      AND c.course_code = p_course_code
+    ORDER BY a.assessment_id;
+END //
+
+DELIMITER ;
+
+
+example call ..............
+
+call get_student_course_result("TG-2023-0001","ICT1212");

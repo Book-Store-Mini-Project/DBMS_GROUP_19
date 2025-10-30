@@ -1,0 +1,18 @@
+CREATE TABLE student (
+    student_id INT PRIMARY KEY AUTO_INCREMENT,
+    reg_num VARCHAR(20) UNIQUE,
+    user_id INT,
+    intake_batch INT,
+    current_level INT,
+    cgpa DECIMAL(4,2),
+    status ENUM('active','graduated','suspended') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+ALTER TABLE student
+ADD CONSTRAINT fk_student_user
+FOREIGN KEY (user_id) REFERENCES user(user_id)
+ON DELETE CASCADE;
+
+

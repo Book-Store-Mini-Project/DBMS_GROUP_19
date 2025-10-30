@@ -1,0 +1,19 @@
+CREATE TABLE user (
+    user_id INT PRIMARY KEY,
+    firstname VARCHAR(20),
+    lastname VARCHAR(20),
+    email VARCHAR(50) NOT NULL UNIQUE,
+    dob DATE,
+    user_type ENUM("student","lecturer","t_officer"),
+    dept_id INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE user
+ADD CONSTRAINT fk_dep_user
+FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+ON DELETE CASCADE;
+
+
+
